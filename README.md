@@ -5,13 +5,20 @@ An interactive command line application that helps you to teach yourself to reco
 ### Usage
 
 ```
-hertz [-h] [-s SAVEFILE] [-l | -t | -g]
+hertz [-h] [-s SAVEFILE] command
+
+Learn to hear in frequencies.
+
+positional arguments:
+  command               Subcommand to run
 
 optional arguments:
   -h, --help            show this help message and exit
   -s SAVEFILE, --save SAVEFILE
                         file to store test results
-  -l, --learn           play sounds and display the frequency
-  -t, --test            test your accuracy
-  -g, --graph           plot your progress
+
+commands:
+  learn                 play sounds and display the frequency
+  test                  test your accuracy
+  graph                 plot your progress
 ```

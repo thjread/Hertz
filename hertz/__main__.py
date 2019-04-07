@@ -6,6 +6,7 @@ import csv
 import matplotlib.pyplot as plt
 import time
 import os
+import uuid
 
 MAX_FREQUENCY=15000
 MIN_FREQUENCY=50
@@ -19,10 +20,11 @@ def random_frequency():
 
 def test(savefile):
     loop = True
+    testid = uuid.uuid4()
     if savefile and not os.path.isfile(savefile):
         with open(savefile, 'w') as sf:
             writer = csv.writer(sf)
-            writer.writerow(["time", "frequency", "estimate"])
+            writer.writerow(["time", "frequency", "estimate", "testid"])
     while loop:
         f = random_frequency()
         s = sine_tone(f, 1)
@@ -34,7 +36,7 @@ def test(savefile):
                 try:
                     with open(savefile, 'a') as sf:
                         writer = csv.writer(sf)
-                        writer.writerow([int(time.time()), f, ans])
+                        writer.writerow([int(time.time()), f, ans, str(testid)])
                 except:
                     print(f"Failed to save result to save file {savefile}")
         except ValueError:
@@ -45,7 +47,7 @@ def test(savefile):
             loop = False
         s.wait_done()
 
-def learn(savefile):
+def learn():
     loop = True
     while loop:
         f = random_frequency()
@@ -61,17 +63,19 @@ def plot(savefile):
             with open(savefile, 'r') as f:
                 r = csv.reader(f)
                 head = next(r)
-                if head != ['time', 'frequency', 'estimate']:
+                if head != ['time', 'frequency', 'estimate', 'testid']:
                     print("Invalid save file format")
                 else:
                     try:
                         times = []
                         freqs = []
                         ests = []
+                        testids = []
                         for row in r:
-                            times.append(float(row[0]))
+                            times.append(int(row[0]))
                             freqs.append(float(row[1]))
                             ests.append(float(row[2]))
+                            testids.append(row[3])
                         freqs = np.array(freqs)
                         ests = np.array(ests)
                         errors = np.abs(np.divide(freqs-ests, freqs))
@@ -87,21 +91,27 @@ def plot(savefile):
         print("Please specify a save file with `--save`")
 
 def main():
-    parser = argparse.ArgumentParser(description='Learn to hear in frequencies.')
+    parser = argparse.ArgumentParser(description='Learn to hear in frequencies.',
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+#                                     usage='''hertz [-h] [-s <savefile>] <command>
+#
+#optional arguments:
+#  -h, --help     show this help message and exit
+#  -s <savefile>, --save <savefile>
+#                 file to store test results
+                                     epilog='''commands:
+  learn                 play sounds and display the frequency
+  test                  test your accuracy
+  graph                 plot your progress''')
     parser.add_argument('-s', '--save', dest='savefile', help='file to store test results')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-l', '--learn', dest='mode', action='store_const',
-                        const=learn,
-                        help='play sounds and display the frequency')
-    group.add_argument('-t', '--test', dest='mode', action='store_const',
-                        const=test,
-                        help='test your accuracy')
-    group.add_argument('-g', '--graph', dest='mode', action='store_const',
-                        const=plot,
-                        help='plot your progress')
+    parser.add_argument('command', help='Subcommand to run')
 
     args = parser.parse_args()
-    if args.mode:
-        args.mode(args.savefile)
+    if args.command == "learn":
+        learn()
+    elif args.command == "test":
+        test(args.savefile)
+    elif args.command == "graph":
+        plot(args.savefile)
     else:
-        parser.print_usage()
+        parser.print_help()
