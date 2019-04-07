@@ -85,6 +85,7 @@ def plot(savefile):
                     ax = plt.subplot(122)
                     ax.set_xscale("log")
                     ax.set_yscale("log")
+                    ax.plot([MIN_FREQUENCY, MAX_FREQUENCY], [MIN_FREQUENCY, MAX_FREQUENCY], ls='--', c='0.50', zorder=-1)
                     ax.scatter(freqs, ests, c=range(len(freqs)))
                     ax.set_xlabel("Frequency")
                     ax.set_ylabel("Estimate")
