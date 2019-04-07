@@ -66,34 +66,33 @@ def plot(savefile):
                 if head != ['time', 'frequency', 'estimate', 'testid']:
                     print("Invalid save file format")
                 else:
-                    try:
-                        times = []
-                        freqs = []
-                        ests = []
-                        testids = []
-                        for row in r:
-                            times.append(int(row[0]))
-                            freqs.append(float(row[1]))
-                            ests.append(float(row[2]))
-                            testids.append(row[3])
-                        freqs = np.array(freqs)
-                        ests = np.array(ests)
-                        errors = np.abs(np.divide(freqs-ests, freqs))
-                        ax = plt.subplot(121)
-                        ax.scatter(range(1,len(errors)+1), 100*errors, c=np.log(freqs))
-                        ax.set_xlabel("Attempt")
-                        ax.set_ylabel("Percentage error")
-                        ax = plt.subplot(122)
-                        ax.set_xscale("log")
-                        ax.set_yscale("log")
-                        ax.scatter(freqs, ests, c=range(len(freqs)))
-                        ax.set_xlabel("Frequency")
-                        ax.set_ylabel("Estimate")
-                        plt.show()
-                    except:
-                        print("Error reading save file")
+                    times = []
+                    freqs = []
+                    ests = []
+                    testids = []
+                    for row in r:
+                        times.append(int(row[0]))
+                        freqs.append(float(row[1]))
+                        ests.append(float(row[2]))
+                        testids.append(row[3])
+                    freqs = np.array(freqs)
+                    ests = np.array(ests)
+                    errors = np.abs(np.divide(freqs-ests, freqs))
+                    ax = plt.subplot(121)
+                    ax.scatter(range(1,len(errors)+1), 100*errors, c=np.log(freqs))
+                    ax.set_xlabel("Attempt")
+                    ax.set_ylabel("Percentage error")
+                    ax = plt.subplot(122)
+                    ax.set_xscale("log")
+                    ax.set_yscale("log")
+                    ax.scatter(freqs, ests, c=range(len(freqs)))
+                    ax.set_xlabel("Frequency")
+                    ax.set_ylabel("Estimate")
+                    plt.show()
         except FileNotFoundError:
             print(f"Save file {savefile} not found")
+        except ValueError:
+            print(f"Error parsing save file {savefile}")
     else:
         print("Please specify a save file with `--save`")
 
