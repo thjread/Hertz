@@ -80,7 +80,6 @@ def plot(savefile):
                     ests = np.array(ests)
                     errs = np.abs(np.divide(freqs-ests, freqs))
                     moving_av_errs = np.exp(pd.Series(np.log(errs)).rolling(10).mean())
-                    print(moving_av_errs)
                     ax = plt.subplot(121)
                     ax.scatter(range(1,len(errs)+1), 100*errs, c=np.log(freqs))
                     ax.plot(range(1,len(errs)+1), 100*moving_av_errs, c='0.50', zorder=-1)
