@@ -7,7 +7,8 @@ setup(
     install_requires = [
         'simpleaudio>=1.0',
         'numpy>=1.16',
-        'matplotlib>=3.0'
+        'matplotlib>=3.0',
+	'pandas>=0.24'
     ],
     entry_points = {
         'console_scripts': [

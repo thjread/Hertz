@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import time
 import os
 import uuid
+import pandas as pd
 
 MAX_FREQUENCY=15000
 MIN_FREQUENCY=50
@@ -77,9 +78,12 @@ def plot(savefile):
                         testids.append(row[3])
                     freqs = np.array(freqs)
                     ests = np.array(ests)
-                    errors = np.abs(np.divide(freqs-ests, freqs))
+                    errs = np.abs(np.divide(freqs-ests, freqs))
+                    moving_av_errs = np.exp(pd.Series(np.log(errs)).rolling(10).mean())
+                    print(moving_av_errs)
                     ax = plt.subplot(121)
-                    ax.scatter(range(1,len(errors)+1), 100*errors, c=np.log(freqs))
+                    ax.scatter(range(1,len(errs)+1), 100*errs, c=np.log(freqs))
+                    ax.plot(range(1,len(errs)+1), 100*moving_av_errs, c='0.50', zorder=-1)
                     ax.set_xlabel("Attempt")
                     ax.set_ylabel("Percentage error")
                     ax = plt.subplot(122)
