@@ -16,6 +16,12 @@ def sine_tone(frequency, duration, volume=0.2, sample_rate=44100):
     data = (32767*volume*np.sin(2*np.pi*np.linspace(0, np.round(duration*frequency), sample_rate*duration))).astype(np.int16)
     return sa.play_buffer(data, 1, 2, sample_rate)
 
+def volume(f):
+    if f < 500:
+        return min(1, 1-0.7*(np.log10(f)-np.log10(50))/(np.log10(500)-np.log10(50)))
+    else:
+        return max(0.1, 0.3-0.12*(np.log10(f)-np.log10(500)))
+
 def random_frequency():
     return np.exp(random.uniform(np.log(MIN_FREQUENCY), np.log(MAX_FREQUENCY)))
 
@@ -28,7 +34,7 @@ def test(savefile):
             writer.writerow(["time", "frequency", "estimate", "testid"])
     while loop:
         f = random_frequency()
-        s = sine_tone(f, 1)
+        s = sine_tone(f, 1, volume(f))
         print("Estimated frequency:", end=' ')
         i = input()
         try:
@@ -53,7 +59,18 @@ def learn():
     while loop:
         f = random_frequency()
         print(f"Playing frequency {f}")
-        sine_tone(f, 1).wait_done()
+        sine_tone(f, 1, volume(f)).wait_done()
+        print("Continue? (Y/n)", end=' ')
+        if input().lower() in ['n', 'no']:
+            loop = False
+
+def octaves():
+    loop = True
+    while loop:
+        octave = random.randint(2, 9)
+        f = 261.63*2**(octave-4)
+        print(f"Playing frequency {f} (C{octave})")
+        sine_tone(f, 1, volume(f)).wait_done()
         print("Continue? (Y/n)", end=' ')
         if input().lower() in ['n', 'no']:
             loop = False
@@ -103,14 +120,9 @@ def plot(savefile):
 def main():
     parser = argparse.ArgumentParser(description='Learn to hear in frequencies.',
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
-#                                     usage='''hertz [-h] [-s <savefile>] <command>
-#
-#optional arguments:
-#  -h, --help     show this help message and exit
-#  -s <savefile>, --save <savefile>
-#                 file to store test results
                                      epilog='''commands:
   learn                 play sounds and display the frequency
+  octaves               learn to distinguish different octaves of C
   test                  test your accuracy
   graph                 plot your progress''')
     parser.add_argument('-s', '--save', dest='savefile', help='file to store test results')
@@ -119,9 +131,12 @@ def main():
     args = parser.parse_args()
     if args.command == "learn":
         learn()
+    elif args.command == "octaves":
+        octaves()
     elif args.command == "test":
         test(args.savefile)
     elif args.command == "graph":
         plot(args.savefile)
     else:
+        print("hertz: error: invalid command")
         parser.print_help()
